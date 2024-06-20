@@ -1,0 +1,4 @@
+resource_group_name   = "preprod"
+storage_account_name  = "gitactpoctestpreprod"
+container_name        = "terraforming-vnet"
+key                   = "vnet-preprod.tfstate"
