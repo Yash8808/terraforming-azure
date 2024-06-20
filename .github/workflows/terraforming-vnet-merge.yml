@@ -3,7 +3,7 @@ name: "Terraforming vnet Merge"
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'terraforming-vnet/**/*'
 
