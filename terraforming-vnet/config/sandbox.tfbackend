@@ -1,0 +1,4 @@
+resource_group_name   = "sandbox"
+storage_account_name  = "gitactpoctest"
+container_name        = "terraforming-vnet"
+key                   = "vnet.tfstate"
