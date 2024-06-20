@@ -36,4 +36,16 @@ jobs:
       run: terraform init --backend-config=./config/${{ env.BRANCH_NAME }}.tfbackend
 
     - name: Terraform Plan
+      id: plan
       run: terraform plan --var-file=./tfvars/${{ env.BRANCH_NAME }}.tfvars
+
+    - name: Post Plan Output as Comment
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          **Terraform Plan**
+          ```
+          ${{ steps['plan'].outputs.stdout }}
+          ${{ steps['plan'].outputs.stderr }}
+          ```
