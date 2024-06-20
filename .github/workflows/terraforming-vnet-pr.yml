@@ -43,7 +43,7 @@ jobs:
       id: plan
       run: terraform plan --var-file=./tfvars/${{ env.BRANCH_NAME }}.tfvars
 
-    - name: Post Plan Output as Comment
+    - name: Post Plan
       uses: peter-evans/create-or-update-comment@v1
       with:
         issue-number: ${{ github.event.pull_request.number }}
