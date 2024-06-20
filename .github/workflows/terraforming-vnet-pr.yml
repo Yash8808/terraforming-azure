@@ -1,11 +1,10 @@
-name: "Terraforming vnet Merge"
+name: "Terraforming vnet PR"
 
 on:
-  push:
-    branches:
-      #- master
-      - sandbox
-      - preprod
+    pull_request:
+        types:
+          - opened
+          - synchronize
     #paths:
     #  - 'terraforming-vnet/**/*'
 
@@ -16,12 +15,16 @@ defaults:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    permissions:
+        id-token: write
+        contents: read
+        pull-requests: write
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.base_ref }}
 
 
     steps:
@@ -37,7 +40,16 @@ jobs:
       run: terraform init --backend-config=./config/${{ env.BRANCH_NAME }}.tfbackend
 
     - name: Terraform Plan
+      id: plan
       run: terraform plan --var-file=./tfvars/${{ env.BRANCH_NAME }}.tfvars
 
-    - name: Terraform Apply
-      run: terraform apply --auto-approve --var-file=./tfvars/${{ env.BRANCH_NAME }}.tfvars
+    - name: Post Plan
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          **Terraform Plan**
+          ```
+          ${{ steps['plan'].outputs.stdout }}
+          ${{ steps['plan'].outputs.stderr }}
+          ```
