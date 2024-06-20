@@ -1,0 +1,36 @@
+name: "Terraforming vnet Merge"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraforming-vnet/**/*'
+
+defaults:
+  run:
+    working-directory: terraforming-vnet
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.8.5 # Specify the Terraform version you want to use
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init
+      run: terraform init --backend-config=./config/sandbox.tfbackend
+
+    - name: Terraform Plan
+      run: terraform plan --var-file=./tfvars/sandbox.tfvars
